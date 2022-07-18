@@ -1,8 +1,32 @@
-import { BSON } from "realm";
+import Realm, { BSON } from "realm";
 
 const { ObjectId } = BSON;
 
-const data = [
+const expenseSchema: Realm.ObjectSchema = {
+  name: "Expense",
+  primaryKey: "_id",
+  properties: {
+    _id: "objectId",
+    category: "string",
+    mode: "string",
+    title: "string",
+    amount: "float",
+    author: "objectId",
+    createdAt: "date"
+  }
+}
+
+type Expense = {
+  _id: BSON.ObjectId,
+  category: string,
+  mode: string
+  title: string
+  amount: number,
+  author: BSON.ObjectId,
+  createdAt: Date
+}
+
+const expenses: Expense[] = [
   {
     _id: new ObjectId("61dbca296ce5d97556e52b18"),
     category: "Entertainment",
@@ -140,4 +164,4 @@ const data = [
   },
 ];
 
-export default data;
+export {expenseSchema, expenses};

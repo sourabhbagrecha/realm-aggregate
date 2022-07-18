@@ -1,10 +1,8 @@
+import realm from 'realm'
 
-const getTestString = () => {
-	return "hello world"
+const aggregate = (aggregate: any[], realm: realm, model: string ) => {
+
+	return realm.objects(model).toJSON()
 }
 
-const otherFunction = () => {
-	return 1
-}
-
-export {getTestString, otherFunction}
+export {aggregate}
