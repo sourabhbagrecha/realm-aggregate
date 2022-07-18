@@ -24,6 +24,7 @@
     "typescript": "^4.7.4"
   },
   "dependencies": {
-    "realm": "^10.19.5"
+    "realm": "^10.19.5",
+    "sift": "^16.0.0"
   }
 }
