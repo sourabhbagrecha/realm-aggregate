@@ -51,5 +51,36 @@ describe("aggregate function", () => {
       ];
       expect(data).toEqual(expectedOutput);
     });
+    it("allows $group", () => {
+      const pipeline = [
+        { $group: { _id: "$category", totalAmount: { $sum: "$amount" } } },
+      ];
+      const data = aggregate(pipeline, realm, "Expense");
+      const expectedOutput = [
+        { _id: "Entertainment", totalAmount: 149 },
+        { _id: "Food", totalAmount: 425 },
+        { _id: "Beverages", totalAmount: 10 },
+        { _id: "Travel", totalAmount: 6400 },
+        { _id: "Education", totalAmount: 5120 },
+        { _id: "Transport", totalAmount: 1024 },
+        { _id: "Eating Out", totalAmount: 1000 },
+      ];
+      expect(data).toEqual(expectedOutput);
+    });
+
+    it("allows $match and $group together", () => {
+      const pipeline = [
+        { $match: { amount: { $gt: 500 } } },
+        { $group: { _id: "$category", totalAmount: { $sum: "$amount" } } },
+      ];
+      const data = aggregate(pipeline, realm, "Expense");
+      const expectedOutput = [
+        { _id: "Travel", totalAmount: 6400 },
+        { _id: "Education", totalAmount: 5120 },
+        { _id: "Transport", totalAmount: 1024 },
+        { _id: "Eating Out", totalAmount: 1000 },
+      ];
+      expect(data).toEqual(expectedOutput);
+    });
   });
 });
