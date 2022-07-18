@@ -1,0 +1,38 @@
+name: Unit Tests
+
+on:
+  pull_request:
+
+  push:
+    branches:
+      - master
+jobs:
+  job:
+    name: Build & test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: "recursive"
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 16
+          registry-url: https://registry.npmjs.org/
+
+      # Caches
+      - uses: actions/cache@v2
+        name: cached node_modules
+        id: cache-node-modules
+        with:
+          path: node_modules
+          key: node-modules-${{ github.job }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Install realm node dependencies
+        run: npm ci
+
+      - name: Build realm react
+        run: npm run build
+
+      - name: Run tests
+        run: npm run test
