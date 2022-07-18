@@ -1,10 +1,12 @@
 import realm from 'realm'
 import sift from 'sift'
 
-const aggregate = (aggregate: any[], realm: realm, model: string ) => {
-	return aggregate.reduce((prevVal, curVal, index, array) => {
-		return applyAggregation(array[index], prevVal);
-	},realm.objects(model).toJSON())
+const aggregate = (aggregationPipeline: any[], realm: realm, model: string ) => {
+	let data = realm.objects(model).toJSON()
+	aggregationPipeline.forEach((aggregation) => {
+		data = applyAggregation(aggregation, data)
+	})
+	return data
 }
 
 const applyAggregation = (aggregation: any, data: any) => {
@@ -13,8 +15,7 @@ const applyAggregation = (aggregation: any, data: any) => {
 		switch(stage){
 			case '$match': return applyMatchStage(query, data)
 			default: {
-				console.warn("stage not implemented: ", stage)
-				return data
+				throw new Error(`The stage parameter ${stage} has no implementation.`)
 			}
 		}
 	}
