@@ -26,10 +26,9 @@ describe("aggregate function", () => {
     expect(data.length).toEqual(expenses.length);
   });
   describe("aggregation array", () => {
-    it("allows $match", async () => {
+    it("allows $match", () => {
       const pipeline = [{ $match: { amount: { $gt: 1000 } } }];
       const data = aggregate(pipeline, realm, "Expense");
-      await new Promise((resolve) => setTimeout(resolve, 1000));
       const expectedOutput = [
         {
           _id: new ObjectId("6284cba31928593fbc555ba6"),
