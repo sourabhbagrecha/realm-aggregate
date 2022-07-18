@@ -17,6 +17,8 @@ const applyAggregation = (aggregation: any, data: any) => {
         return applyMatchStage(query, data);
       case "$group":
         return applyGroupStage(query, data);
+      case "$project":
+        return applyProjectStage(query, data);
       default: {
         throw new Error(`The stage parameter ${stage} has no implementation.`);
       }
@@ -59,6 +61,17 @@ const applyGroupStage = (query: any, data: any) => {
     }
   }
   return results;
+};
+
+const applyProjectStage = (query: any, data: any) => {
+  return data.map((item: any) => {
+    const result: any = {};
+    for (let [key, value] of Object.entries(query)) {
+      if (value === 1) result[key] = item[key];
+      else if (typeof value === "string") result[key] = item[value.slice(1)];
+    }
+    return result;
+  });
 };
 
 export { aggregate };

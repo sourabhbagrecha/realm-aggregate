@@ -82,5 +82,31 @@ describe("aggregate function", () => {
       ];
       expect(data).toEqual(expectedOutput);
     });
+
+    it("allows $project", () => {
+      const pipeline = [{ $project: { title: 1, paymentMode: "$mode" } }];
+      const data = aggregate(pipeline, realm, "Expense");
+      const expectedOutput = [
+        { title: "Netflix", paymentMode: "Axis CC" },
+        { title: "Mix Veg", paymentMode: "Cash" },
+        { title: "Tea", paymentMode: "UPI" },
+        { title: "Flights", paymentMode: "UPI" },
+        { title: "Online Course", paymentMode: "Credit Card" },
+        { title: "Online Course", paymentMode: "Credit Card" },
+        { title: "Cab", paymentMode: "Credit Card" },
+        { title: "Online Course", paymentMode: "Credit Card" },
+        { title: "Online Course", paymentMode: "Credit Card" },
+        { title: "Mighty Fine", paymentMode: "Credit Card" },
+        { title: "Online Course", paymentMode: "Credit Card" },
+        { title: "New Online Course", paymentMode: "Credit Card" },
+        {
+          title: "Javascript Online Course Yeha",
+          paymentMode: "Credit Card",
+        },
+        { title: "Online Course", paymentMode: "Credit Card" },
+        { title: "Dinner", paymentMode: "UPI" },
+      ];
+      expect(data).toEqual(expectedOutput);
+    });
   });
 });
