@@ -1986,6 +1986,14 @@ describe("aggregate function", () => {
         ];
         expect(data).toEqual(expectedOutput);
       });
+      it("with an invalid input: just number", () => {
+        const pipeline = [{ $addFields: 2 }];
+        expect(() => aggregate(pipeline, realm, "Expense")).toThrow();
+      });
+      it("with an invalid input: just string", () => {
+        const pipeline = [{ $addFields: "something" }];
+        expect(() => aggregate(pipeline, realm, "Expense")).toThrow();
+      });
     });
   });
 });

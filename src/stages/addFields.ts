@@ -17,6 +17,9 @@ const recursiveFieldAddition = (query: any, originalDocument: any) => {
 };
 
 const applyAddFieldsStage = (query: any, data: any) => {
+  if (typeof query !== "object") {
+    throw new Error(`$addFields stage needs a query object.`);
+  }
   const addFieldsEntries = Object.entries(query);
   return data.map((item: any) => {
     const result: any = item;
