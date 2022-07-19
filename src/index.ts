@@ -1,5 +1,6 @@
 import realm from "realm";
 import {
+  applyAddFieldsStage,
   applyGroupStage,
   applyLimitStage,
   applyMatchStage,
@@ -32,6 +33,8 @@ const applyAggregation = (aggregation: any, data: any) => {
         return applyLimitStage(query, data);
       case "$skip":
         return applySkipStage(query, data);
+      case "$addFields":
+        return applyAddFieldsStage(query, data);
       default: {
         throw new Error(`The stage parameter ${stage} has no implementation.`);
       }
