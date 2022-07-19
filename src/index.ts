@@ -4,6 +4,7 @@ import {
   applyLimitStage,
   applyMatchStage,
   applyProjectStage,
+  applySkipStage,
   applySortStage,
 } from "./stages";
 
@@ -29,6 +30,8 @@ const applyAggregation = (aggregation: any, data: any) => {
         return applyProjectStage(query, data);
       case "$limit":
         return applyLimitStage(query, data);
+      case "$skip":
+        return applySkipStage(query, data);
       default: {
         throw new Error(`The stage parameter ${stage} has no implementation.`);
       }
