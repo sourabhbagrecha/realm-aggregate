@@ -21,6 +21,8 @@ const applyAggregation = (aggregation: any, data: any) => {
 				return applySortStage(query, data)
       case "$project":
         return applyProjectStage(query, data);
+			case "$limit":
+				return applyLimitStage(query, data);
       default: {
         throw new Error(`The stage parameter ${stage} has no implementation.`);
       }
@@ -133,5 +135,14 @@ const applyProjectStage = (query: any, data: any) => {
     });
   }
 };
+
+const applyLimitStage = (query: any, data: any[]) => {
+	if(typeof query === "number" && query > 0){
+		return data.slice(0, query)
+	}
+	else{
+		throw new Error("$limit argument must be a positive number")
+	}
+}
 
 export { aggregate };
