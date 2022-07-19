@@ -1,3 +1,21 @@
+const recursiveFieldAddition = (query: any, originalDocument: any) => {
+  const result: any = {};
+  for (let [key, value] of Object.entries(query)) {
+    if (typeof value === "string") {
+      if (value[0] === "$") {
+        result[key] = originalDocument[value.slice(1)];
+      } else {
+        result[key] = value;
+      }
+    } else if (typeof value === "number") {
+      result[key] = value;
+    } else if (typeof value === "object") {
+      result[key] = recursiveFieldAddition(value, originalDocument);
+    } else throw new Error(`Project with value: ${value} is not supported`);
+  }
+  return result;
+};
+
 const applyAddFieldsStage = (query: any, data: any) => {
   const addFieldsEntries = Object.entries(query);
   return data.map((item: any) => {
@@ -9,6 +27,10 @@ const applyAddFieldsStage = (query: any, data: any) => {
         } else {
           result[key] = value;
         }
+      } else if (typeof value === "number") {
+        result[key] = value;
+      } else if (typeof value === "object") {
+        result[key] = recursiveFieldAddition(value, item);
       } else throw new Error(`Project with value: ${value} is not supported`);
     }
     return result;
