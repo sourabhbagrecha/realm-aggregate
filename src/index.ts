@@ -17,12 +17,12 @@ const applyAggregation = (aggregation: any, data: any) => {
         return applyMatchStage(query, data);
       case "$group":
         return applyGroupStage(query, data);
-			case "$sort":
-				return applySortStage(query, data)
+      case "$sort":
+        return applySortStage(query, data);
       case "$project":
         return applyProjectStage(query, data);
-			case "$limit":
-				return applyLimitStage(query, data);
+      case "$limit":
+        return applyLimitStage(query, data);
       default: {
         throw new Error(`The stage parameter ${stage} has no implementation.`);
       }
@@ -57,9 +57,7 @@ const applyGroupStage = (query: any, data: any) => {
           currentItem[key] += item[expressionValue.slice(1)];
           break;
         default: {
-          throw new Error(
-            `The expression: ${expression} has no implementation.`
-          );
+          throw new Error(`The expression: ${expression} has no implementation.`);
         }
       }
     }
@@ -67,53 +65,47 @@ const applyGroupStage = (query: any, data: any) => {
   return results;
 };
 
-enum SortOrder{
-	Ascending= 1,
-	Descending= -1
+enum SortOrder {
+  Ascending = 1,
+  Descending = -1,
 }
-
 
 const applySortStage = (query: any, data: any) => {
-		const field = Object.keys(query as any)[0];
-		const order: SortOrder = query[field]
-		const ascendingSort = (a: any, b: any) => {
-			if( a[field] < b[field]){
-				return -1
-			}
-			if( a[field] > b[field]){
-				return 1
-			}
-			return 0
-		}
-		const descendingSort = (a: any, b: any) => {
-			if( a[field] > b[field]){
-				return -1
-			}
-			if( a[field] < b[field]){
-				return 1
-			}
-			return 0
-		}
-		const sortFunction = order === SortOrder.Ascending ? ascendingSort: descendingSort;
-		return data.sort(sortFunction)
-}
+  const field = Object.keys(query as any)[0];
+  const order: SortOrder = query[field];
+  const ascendingSort = (a: any, b: any) => {
+    if (a[field] < b[field]) {
+      return -1;
+    }
+    if (a[field] > b[field]) {
+      return 1;
+    }
+    return 0;
+  };
+  const descendingSort = (a: any, b: any) => {
+    if (a[field] > b[field]) {
+      return -1;
+    }
+    if (a[field] < b[field]) {
+      return 1;
+    }
+    return 0;
+  };
+  const sortFunction = order === SortOrder.Ascending ? ascendingSort : descendingSort;
+  return data.sort(sortFunction);
+};
 
 const applyProjectStage = (query: any, data: any) => {
   const { _id, ...queryApartFromId } = query;
   const projectEntries = Object.entries(queryApartFromId);
   const projectValues = Object.values(queryApartFromId);
-  let exclusionsExists =
-    projectValues.includes(0) || projectValues.includes(false);
+  let exclusionsExists = projectValues.includes(0) || projectValues.includes(false);
   let inclusionsExists =
     projectValues.includes(1) ||
     projectValues.includes(true) ||
-    projectValues.includes(
-      (v: any) => typeof v === "string" || typeof v === "object"
-    );
+    projectValues.includes((v: any) => typeof v === "string" || typeof v === "object");
   if (exclusionsExists && inclusionsExists) {
-    throw new Error(
-      "$project does not support exclusions & inclusions together."
-    );
+    throw new Error("$project does not support exclusions & inclusions together.");
   }
   if (inclusionsExists) {
     return data.map((item: any) => {
@@ -137,12 +129,11 @@ const applyProjectStage = (query: any, data: any) => {
 };
 
 const applyLimitStage = (query: any, data: any[]) => {
-	if(typeof query === "number" && query > 0){
-		return data.slice(0, query)
-	}
-	else{
-		throw new Error("$limit argument must be a positive number")
-	}
-}
+  if (typeof query === "number" && query > 0) {
+    return data.slice(0, query);
+  } else {
+    throw new Error("$limit argument must be a positive number");
+  }
+};
 
 export { aggregate };

@@ -1,7 +1,7 @@
-
 ## Development workflow
 
 Install dependencies:
+
 ```
 npm install
 ```
