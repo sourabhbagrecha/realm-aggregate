@@ -12,19 +12,19 @@ const expenseSchema: Realm.ObjectSchema = {
     title: "string",
     amount: "float",
     author: "objectId",
-    createdAt: "date"
-  }
-}
+    createdAt: "date",
+  },
+};
 
 type Expense = {
-  _id: BSON.ObjectId,
-  category: string,
-  mode: string
-  title: string
-  amount: number,
-  author: BSON.ObjectId,
-  createdAt: Date
-}
+  _id: BSON.ObjectId;
+  category: string;
+  mode: string;
+  title: string;
+  amount: number;
+  author: BSON.ObjectId;
+  createdAt: Date;
+};
 
 const expenses: Expense[] = [
   {
@@ -164,4 +164,4 @@ const expenses: Expense[] = [
   },
 ];
 
-export {expenseSchema, expenses};
+export { expenseSchema, expenses };
