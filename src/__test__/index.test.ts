@@ -1387,7 +1387,6 @@ describe("aggregate function", () => {
           createdAt: new Date("2022-05-01T12:03:56.000Z"),
         },
       ];
-      console.log(data[0].createdAt === expectedOutput[0].createdAt);
       expect(data).toEqual(expectedOutput);
     });
     describe("allows $limit", () => {
@@ -1409,6 +1408,37 @@ describe("aggregate function", () => {
       });
       it("throws on invalid input", () => {
         const pipeline = [{ $limit: -1 }];
+        expect(() => aggregate(pipeline, realm, "Expense")).toThrow();
+      });
+    });
+    describe("allows $skip", () => {
+      it("with valid input", () => {
+        const pipeline = [{ $skip: 13 }];
+        const data = aggregate(pipeline, realm, "Expense");
+        const expectedOutput = [
+          {
+            _id: new ObjectId("62ac1f8354e7cc0f5b86ec33"),
+            category: "Education",
+            createdAt: new Date("2022-06-17T06:30:25.587Z"),
+            mode: "Credit Card",
+            title: "Online Course",
+            amount: 640,
+            author: new ObjectId("62ab9ff654e7cc0f5b79ee8b"),
+          },
+          {
+            _id: new ObjectId("62c2d74967794830293a5613"),
+            amount: 1000,
+            author: new ObjectId("624fd95c095bb869dc9700cc"),
+            category: "Eating Out",
+            createdAt: new Date("2022-05-01T12:03:56.000Z"),
+            mode: "UPI",
+            title: "Dinner",
+          },
+        ];
+        expect(data).toEqual(expectedOutput);
+      });
+      it("throws on invalid input", () => {
+        const pipeline = [{ $skip: -1 }];
         expect(() => aggregate(pipeline, realm, "Expense")).toThrow();
       });
     });
