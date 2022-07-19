@@ -1290,7 +1290,6 @@ describe("aggregate function", () => {
     it("allows $project with exclusions", () => {
       const pipeline = [{ $project: { title: 0 } }];
       const data = aggregate(pipeline, realm, "Expense");
-      console.log({ data });
       const expectedOutput = [
         {
           _id: new ObjectId("61dbca296ce5d97556e52b18"),
@@ -1416,5 +1415,27 @@ describe("aggregate function", () => {
       console.log(data[0].createdAt === expectedOutput[0].createdAt);
       expect(data).toEqual(expectedOutput);
     });
+    describe("allows $limit", () => {
+      it("with valid input", () => {
+        const pipeline = [{ $limit: 1 }];
+        const data = aggregate(pipeline, realm, "Expense");
+        const expectedOutput =[
+          {
+            _id: new ObjectId("61dbca296ce5d97556e52b18"),
+            category: 'Entertainment',
+            mode: 'Axis CC',
+            title: 'Netflix',
+            amount: 149,
+            author: new ObjectId("61d85eae766161a4497a6dd6"),
+            createdAt: new Date("2022-01-10T06:22:29.000Z")
+          }
+        ]
+        expect(data).toEqual(expectedOutput)
+      })
+      it("throws on invalid input", () => {
+        const pipeline = [{$limit: -1}];
+        expect(() => aggregate(pipeline, realm, "Expense")).toThrow()
+      })
+    })
   });
 });
