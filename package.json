@@ -9,7 +9,7 @@
     "build": "tsc",
     "start": "tsc --watch",
     "test": "jest",
-    "test:watch": "jest --watchAll",
+    "test:watch": "jest --watch",
     "prepare": "rm -rf dist && npm run build"
   },
   "author": "",
