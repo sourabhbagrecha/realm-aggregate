@@ -4,7 +4,7 @@ import { expenses, expenseSchema } from "./sample-data";
 
 const ObjectId = Realm.BSON.ObjectId;
 
-describe("aggregate function", () => {
+describe.skip("aggregate function", () => {
   let realm: Realm;
 
   beforeAll(() => {
