@@ -103,6 +103,23 @@ describe("Applying group stage", () => {
 
     expect(result).toEqual(expectedOutput);
   });
+  it("supports $subtract", () => {
+    const data = [
+      { name: "Sourabh", totalEarnings: 100000, totalTaxPaid: 9000 },
+      { name: "Lorem", totalEarnings: 5000, totalTaxPaid: 1000 },
+      { name: "Sourabh", totalEarnings: 300000, totalTaxPaid: 30000 },
+      { name: "Lorem", totalEarnings: 25000, totalTaxPaid: 1700 },
+    ];
+    const output = applyGroupStage(
+      { _id: "$name", netEarnings: { $sum: { $subtract: ["$totalEarnings", "$totalTaxPaid"] } } },
+      data,
+    );
+    const expectedOutput = [
+      { _id: "Sourabh", netEarnings: 361000 },
+      { _id: "Lorem", netEarnings: 27300 },
+    ];
+    expect(output).toEqual(expectedOutput);
+  });
   it("supports supports $push", () => {
     const data = [
       { _id: 1, category: "a", value: 1, quantity: 1 },

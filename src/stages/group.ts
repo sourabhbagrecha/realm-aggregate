@@ -98,6 +98,16 @@ const computeOperatorExpression: any = {
       return runningTotal + checkAndComputeNestedExpression(arg, item);
     }, 0);
   },
+  $subtract: (args: any[], item: any) => {
+    if (args.length !== 2) throw Error("$subtract takes 2 arguments only");
+    const firstNum = checkAndComputeNestedExpression(args[0], item);
+    const secondNum = checkAndComputeNestedExpression(args[1], item);
+    if (typeof firstNum === "number" && typeof secondNum === "number") {
+      return firstNum - secondNum;
+    } else {
+      throw Error("Only numbers can be subtracted.");
+    }
+  },
   $multiply: (args: any[], item: any) => {
     return args.reduce((runningTotal: number, arg: any) => {
       return runningTotal * checkAndComputeNestedExpression(arg, item);
@@ -107,7 +117,7 @@ const computeOperatorExpression: any = {
     if (args.length !== 2) throw Error("$divide takes 2 arguments only");
     const numerator = checkAndComputeNestedExpression(args[0], item);
     const denominator = checkAndComputeNestedExpression(args[1], item);
-    if (typeof numerator === "number" || typeof denominator === "number") {
+    if (typeof numerator === "number" && typeof denominator === "number") {
       if (denominator !== 0) {
         return numerator / denominator;
       }
