@@ -1,17 +1,9 @@
-type Accumulator = "$sum" | "$multiply" | "$avg" | "$min" | "$max" | "$push" | "$addToSet";
-const supportedAccumulators: Accumulator[] = [
-  "$sum",
-  "$multiply",
-  "$avg",
-  "$min",
-  "$max",
-  "$push",
-  "$addToSet",
-];
+type Accumulator = "$sum" | "$avg" | "$min" | "$max" | "$push" | "$addToSet";
+const supportedAccumulators: Accumulator[] = ["$sum", "$avg", "$min", "$max", "$push", "$addToSet"];
 
 const applyGroupStage = (query: any, data: any) => {
   const results: any[] = [];
-  const { _id, ...operators } = query;
+  const { _id, ...groupFields } = query;
   for (let item of data) {
     const identifier = item[_id.slice(1)];
     let currentItem = results.find((r) => r._id === identifier);
@@ -24,11 +16,9 @@ const applyGroupStage = (query: any, data: any) => {
     }
   }
 
-  for (const [key, value] of Object.entries(operators) as any) {
-    const fieldName = key;
-    const operator = value;
+  for (const [fieldName, accumulatorObject] of Object.entries(groupFields) as any) {
     for (let group of results) {
-      const result = computeOperator(operator, group.__originalItems, true);
+      const result = computeAccumulator(accumulatorObject, group.__originalItems);
       group[fieldName] = result;
     }
   }
@@ -37,21 +27,28 @@ const applyGroupStage = (query: any, data: any) => {
   return results;
 };
 
-const accumulatorSingleOperations = {
-  $sum: (items: any[], expression: string): number => {
-    return items.reduce((acc: any, item) => (acc += expToVal(expression, item) ?? 0), 0);
+const runAccumulatorExpressions = {
+  $sum: (items: any[], expression: any): number => {
+    return items.reduce((acc: any, item) => {
+      if (typeof expression === "object") {
+        const operatorName = Object.keys(expression)[0];
+        return acc + computeOperatorExpression[operatorName](expression[operatorName], item);
+      } else {
+        return acc + expToVal(expression, item) ?? 0;
+      }
+    }, 0);
   },
   $avg: (items: any[], expression: string): number => {
     return (
-      items.reduce((acc: any, item) => (acc += expToVal(expression, item) ?? 0), 0) /
-        items.length || 0
+      items.reduce((acc: any, item) => {
+        if (typeof expression === "object") {
+          const operatorName = Object.keys(expression)[0];
+          return acc + computeOperatorExpression[operatorName](expression[operatorName], item);
+        } else {
+          return acc + expToVal(expression, item) ?? 0;
+        }
+      }, 0) / items.length
     );
-  },
-  $multiply: (items: any[], expression: string): number => {
-    return items.reduce((acc: any, item) => {
-      const value = expToVal(expression, item) ?? 0;
-      acc === 0 ? value : (acc *= value);
-    }, 0);
   },
   $min: (items: any[], expression: string): number => {
     return items.reduce((acc: any, item) => {
@@ -107,115 +104,65 @@ const expToVal = (
   return undefined;
 };
 
-const accumulatorArrayOperations = {
-  $sum: (items: any[], expressionSet: string[]): number[] => {
-    return items.map((item) => {
-      return expressionSet.reduce((acc, expression) => {
-        return (acc += expToVal(expression, item) ?? 0);
-      }, 0);
-    });
-  },
-  $avg: (items: any[], expressionSet: string[]): number[] => {
-    return items.map((item) => {
-      return (
-        expressionSet.reduce((acc, expression) => {
-          return (acc += expToVal(expression, item) ?? 0);
-        }, 0) / expressionSet.length || 0
-      );
-    });
-  },
-  $multiply: (items: any[], expressionSet: string[]): number[] => {
-    return items.map((item) => {
-      return expressionSet.reduce((acc, expression) => {
-        const value = expToVal(expression, item) ?? 0;
-        return acc === 0 ? value : (acc *= value);
-      }, 0);
-    });
-  },
-  $min: (items: any[], expressionSet: string[]): number[] => {
-    return items.map((item) => {
-      return expressionSet.reduce((acc, expression) => {
-        const value = expToVal(expression, item) ?? null;
-        return isNaN(acc) ? value : value < acc ? value : acc;
-      }, NaN);
-    });
-  },
-  $max: (items: any[], expressionSet: string[]): number[] => {
-    return items.map((item) => {
-      return expressionSet.reduce((acc, expression) => {
-        const value = expToVal(expression, item) ?? null;
-        return isNaN(acc) ? value : value > acc ? value : acc;
-      }, NaN);
-    });
-  },
-  $push: (items: any[], expressionSet: string[]): number => {
-    throw new Error("The $push accumulator is a unary operator");
-  },
-  $addToSet: (items: any[], expressionSet: string[]): number => {
-    throw new Error("The $addToSet accumulator is a unary operator");
-  },
-};
-
-const accumulatorResultsOperations = {
-  $sum: (results: number[]): number => {
-    return results.reduce((acc: any, result) => (acc += result), 0);
-  },
-  $avg: (results: number[]): number => {
-    return results.reduce((acc: any, result) => (acc += result), 0) / results.length || 0;
-  },
-  $multiply: (results: number[]): number => {
-    return results.reduce((acc: any, result) => (acc === 0 ? result : (acc *= result)), 0);
-  },
-  $min: (results: number[]): number => {
-    return results.reduce(
-      (acc: any, result) => (acc === NaN ? result : result < acc ? result : acc),
-      NaN,
-    );
-  },
-  $max: (results: number[]): number => {
-    return results.reduce(
-      (acc: any, result) => (acc === NaN ? result : result > acc ? result : acc),
-      NaN,
-    );
-  },
-  $push: (results: any[]): any[] => {
-    return results;
-  },
-  $addToSet: (results: any[]): any[] => {
-    const set = new Set(results);
-    return Array.from(set);
-  },
-};
-
-const computeOperator = (
-  operator: any,
-  items: any[],
-  isFirstRun?: boolean,
-): number | number[] | string[] | string => {
-  const accumulator = Object.keys(operator as any)[0] as Accumulator;
-  const expression = operator[accumulator];
-
-  if (supportedAccumulators.includes(accumulator)) {
-    if (typeof expression === "string") {
-      return accumulatorSingleOperations[accumulator](items, expression);
-    } else if (Array.isArray(expression)) {
-      if (isFirstRun) {
-        throw new Error("No arrays allowed for first level accumulator");
+// Generic compute-expression function will be extended
+// to other stages like $project, $addFields etc. later on
+const computeOperatorExpression: any = {
+  $add: (args: any[], item: any) => {
+    return args.reduce((runningTotal: number, arg: number) => {
+      if (typeof arg === "number") {
+        return runningTotal + arg;
+      } else {
+        const resolvedValue = expToVal(arg, item);
+        if (typeof resolvedValue === "number") {
+          return runningTotal + resolvedValue;
+        }
+        throw Error(`${arg} does not resolve to a number therefore can't be used with $add.`);
       }
-      const expressionSet = expression;
-      return accumulatorArrayOperations[accumulator](items, expressionSet);
-    } else if (typeof expression === "object") {
-      const result: number | number[] | string | string[] = computeOperator(expression, items);
-      if (Array.isArray(result)) {
-        const results = result as number[];
-        return accumulatorResultsOperations[accumulator](results);
+    }, 0);
+  },
+  $multiply: (args: any[], item: any) => {
+    return args.reduce((runningTotal: number, arg: number) => {
+      if (typeof arg === "number") {
+        return runningTotal * arg;
+      } else {
+        const resolvedValue = expToVal(arg, item);
+        if (typeof resolvedValue === "number") {
+          return runningTotal * resolvedValue;
+        }
+        throw Error(`${arg} does not resolve to a number therefore can't be used with $multiply.`);
       }
-      return result;
+    }, 1);
+  },
+  $divide: (args: any[], item: any) => {
+    if (args.length !== 2) throw "$divide takes 2 arguments only";
+    const [numeratorRaw, denominatorRaw] = args;
+    const [numerator, denominator] = [expToVal(numeratorRaw, item), expToVal(denominatorRaw, item)];
+    if (typeof numerator === "number" || typeof denominator === "number") {
+      if (denominator !== 0) {
+        return numerator / denominator;
+      }
+      throw Error(`Denominator can't be 0.`);
     } else {
-      throw new Error(`Invalid expression ${expression} given for accumulator ${accumulator}`);
+      throw Error("Only numbers can be divided.");
     }
+  },
+};
+
+const computeAccumulator = (
+  accumulatorObject: any,
+  items: any[],
+): number | string | any[] | any => {
+  const accumulatorName = Object.keys(accumulatorObject as any)[0] as Accumulator;
+  const expression = accumulatorObject[accumulatorName];
+
+  if (supportedAccumulators.includes(accumulatorName)) {
+    const typeOfExpression = typeof expression;
+    if (["string", "number", "object"].includes(typeOfExpression)) {
+      return runAccumulatorExpressions[accumulatorName](items, expression);
+    }
+    throw new Error(`Invalid expression ${expression} given for accumulator ${accumulatorName}`);
   } else {
-    throw new Error(`${accumulator} is not supported!`);
+    throw new Error(`${accumulatorName} is not supported!`);
   }
 };
 
