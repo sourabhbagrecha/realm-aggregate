@@ -3,28 +3,25 @@ import { applyGroupStage } from "../group";
 describe("Applying group stage", () => {
   it("supports grouping by string property", () => {
     const data = [
-      {
-        _id: 1,
-        category: "a",
-      },
-      {
-        _id: 2,
-        category: "a",
-      },
-      {
-        _id: 3,
-        category: "b",
-      },
-      {
-        _id: 4,
-        category: "b",
-      },
+      { _id: 1, category: "a" },
+      { _id: 2, category: "a" },
+      { _id: 3, category: "b" },
+      { _id: 4, category: "b" },
     ];
     const result = applyGroupStage({ _id: "$category" }, data);
 
     const expectedOutput = [{ _id: "a" }, { _id: "b" }];
 
     expect(result).toEqual(expectedOutput);
+  });
+  it("count using $sum", () => {
+    const data = [{ a: 1 }, { a: 1 }, { a: 1 }, { a: 1 }, { a: 1 }, { a: 1 }, { a: 2 }, { a: 2 }];
+    const output = applyGroupStage({ _id: "$a", count: { $sum: 1 } }, data);
+    const expectedOutput = [
+      { _id: 1, count: 6 },
+      { _id: 2, count: 2 },
+    ];
+    expect(output).toEqual(expectedOutput);
   });
   it("supports $sum", () => {
     const data = [
@@ -82,7 +79,7 @@ describe("Applying group stage", () => {
   });
   it("supports supports $min and $max", () => {
     const data = [
-      { _id: 1, category: "a", value: 1, quantity: 1 },
+      { _id: 1, category: "a", value: -1000, quantity: 1 },
       { _id: 2, category: "a", value: 2, quantity: 2 },
       { _id: 3, category: "b", value: 3, quantity: 3 },
       { _id: 4, category: "b", value: 4, quantity: 3 },
@@ -91,7 +88,7 @@ describe("Applying group stage", () => {
     let result = applyGroupStage({ _id: "$category", result: { $min: "$value" } }, data);
 
     let expectedOutput: { _id: string; result: number | null }[] = [
-      { _id: "a", result: 1 },
+      { _id: "a", result: -1000 },
       { _id: "b", result: 3 },
     ];
 
@@ -163,7 +160,7 @@ describe("Applying group stage", () => {
 
     expect(result).toEqual(expectedOutput);
   });
-  it("supports supports $addToSet", () => {
+  it.skip("supports supports $addToSet", () => {
     const data = [
       {
         _id: 1,
@@ -269,5 +266,14 @@ describe("Applying group stage", () => {
     ];
 
     expect(result).toEqual(expectedOutput);
+  });
+  it("supports nested operator expressions", () => {
+    const sampleData = [{ a: 1 }, { a: 1 }];
+    const data = applyGroupStage(
+      { _id: null, totalSum: { $sum: { $add: [{ $multiply: [3, 4] }] } } },
+      sampleData,
+    );
+    const expectedData = [{ _id: null, totalSum: 24 }];
+    expect(data).toEqual(expectedData);
   });
 });
