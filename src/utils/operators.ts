@@ -11,7 +11,7 @@ const expToVal = (expression: string | number | object, item: any) => {
   }
 };
 
-const checkAndComputeNestedExpression = (arg: any, item: any): any => {
+export const checkAndComputeNestedExpression = (arg: any, item: any): any => {
   const argType = typeof arg;
   if (argType === "object") {
     const operatorName = Object.keys(arg)[0];
@@ -59,7 +59,7 @@ const computeOperatorExpression: any = {
   },
 };
 
-const extractOpAndCalExpr = (expression: any, item: any) => {
+export const extractOpAndCalExpr = (expression: any, item: any) => {
   if (typeof expression === "object") {
     const operatorName = Object.keys(expression)[0];
     return computeOperatorExpression[operatorName](expression[operatorName], item);
@@ -67,5 +67,3 @@ const extractOpAndCalExpr = (expression: any, item: any) => {
     return expToVal(expression, item);
   }
 };
-
-export { extractOpAndCalExpr, checkAndComputeNestedExpression };
