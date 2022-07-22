@@ -1,6 +1,6 @@
 {
-  "name": "@realm/aggregate",
-  "version": "0.0.1",
+  "name": "realm-aggregate",
+  "version": "0.0.0-alpha.1",
   "description": "An aggregation pipeline syntax for realm",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
