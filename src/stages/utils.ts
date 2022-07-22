@@ -35,11 +35,10 @@ const computeOperatorExpression: any = {
     if (args.length !== 2) throw Error("$subtract takes 2 arguments only");
     const firstNum = checkAndComputeNestedExpression(args[0], item);
     const secondNum = checkAndComputeNestedExpression(args[1], item);
-    if (typeof firstNum === "number" && typeof secondNum === "number") {
-      return firstNum - secondNum;
-    } else {
+    if (typeof firstNum !== "number" || typeof secondNum !== "number") {
       throw Error("Only numbers can be subtracted.");
     }
+    return firstNum - secondNum;
   },
   $multiply: (args: any[], item: any) => {
     return args.reduce((runningTotal: number, arg: any) => {
@@ -50,14 +49,13 @@ const computeOperatorExpression: any = {
     if (args.length !== 2) throw Error("$divide takes 2 arguments only");
     const numerator = checkAndComputeNestedExpression(args[0], item);
     const denominator = checkAndComputeNestedExpression(args[1], item);
-    if (typeof numerator === "number" && typeof denominator === "number") {
-      if (denominator !== 0) {
-        return numerator / denominator;
-      }
+    const numeIsANum = typeof numerator !== "number";
+    const denoIsANum = typeof denominator !== "number";
+    if (numeIsANum || denoIsANum) throw Error(`$divide only support numeric types.`);
+    if (denominator === 0) {
       throw Error(`Denominator can't be 0.`);
-    } else {
-      throw Error("Only numbers can be divided.");
     }
+    return numerator / denominator;
   },
 };
 
@@ -70,4 +68,4 @@ const extractOpAndCalExpr = (expression: any, item: any) => {
   }
 };
 
-export { extractOpAndCalExpr };
+export { extractOpAndCalExpr, checkAndComputeNestedExpression };
