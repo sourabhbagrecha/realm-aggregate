@@ -28,8 +28,7 @@ describe("Integration Test for:\x1b[33m $match, $group, $sort, $skip, $limit, $a
         { $addFields: { amount: "$totalAmount" } },
         { $project: { mode: "$_id", amount: 1, _id: 0 } },
       ],
-      realm,
-      "Expense",
+      realm.objects("Expense"),
     );
     const expectedOutput = [
       { mode: "UPI", amount: 7400 },

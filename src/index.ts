@@ -9,8 +9,8 @@ import {
   applySortStage,
 } from "./stages";
 
-const aggregate = (aggregationPipeline: any[], realm: realm, model: string) => {
-  let data = realm.objects(model).toJSON();
+const aggregate = (aggregationPipeline: any[], collection: Realm.Collection<unknown>) => {
+  let data = collection.toJSON();
   aggregationPipeline.forEach((aggregation) => {
     data = applyAggregation(aggregation, data);
   });

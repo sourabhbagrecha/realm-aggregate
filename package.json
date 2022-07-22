@@ -1,6 +1,6 @@
 {
   "name": "realm-aggregate",
-  "version": "0.0.0-alpha.1",
+  "version": "0.0.0-alpha.3",
   "description": "An aggregation pipeline syntax for realm",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -27,5 +27,8 @@
   "dependencies": {
     "realm": "^10.19.5",
     "sift": "^16.0.0"
+  },
+  "peerDependencies": {
+    "realm": ">=10.19.0"
   }
 }
