@@ -1,4 +1,4 @@
-## Why this Project?
+#Realm
 When I was building my first React Native based expense-manager using Atlas Device Sync, I came up with an idea for a new feature where I wanted to perform analytics on the data stored on the user’s device.
 Though Realm SDKs provide all the features I needed to build an offline-first Mobile App, I was really surprised when I learned that Realm SDK does not provide my favorite MongoDB feature: Aggregation Pipelines.
 
@@ -107,26 +107,3 @@ Check out this [Analytics Screen](https://github.com/sourabhbagrecha/expengo-mob
 
 https://www.npmjs.com/package/realm-aggregate
 
-
-
-
-
-## Development workflow
-
-Install dependencies:
-
-```
-npm install
-```
-
-Open a terminal and start watching for typescript changes:
-
-```
-npm start
-```
-
-Open a second terminal and start tests in watch mode:
-
-```
-npm run test:watch
-```
