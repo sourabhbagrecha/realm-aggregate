@@ -19,7 +19,7 @@ Given that we already know the input and the expectations from this library, we 
 
 The current MongoDB aggregation framework has more than 150 expressions and 30 stages. But we could not cover everything in these 5 days. Therefore, we started with the most common and fundamental stages and operators:
 
-Aggregation Pipeline’s Building Blocks
+## Aggregation Pipeline’s Building Blocks
 ### Supported Stages
 
 * $match
@@ -45,13 +45,13 @@ Aggregation Pipeline’s Building Blocks
 
 ## How to use it in your projects?
 The first step is to install our package in your application. All you need to do is run this command:
-```
+```bash
 npm i realm-aggregate
 ```
 The next step is to pass your aggregation pipeline along with an Array of JavaScript Objects on which you want to perform aggregation, like this:
 
 
-```
+```javascript
 import {aggregate} from “realm-aggregate”;
 import {createRealmContext} from '@realm/react';
 
