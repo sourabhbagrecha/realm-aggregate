@@ -1,5 +1,7 @@
-# Realm Aggregate
+# Realm Aggregate - ⚠️ Experimental ⚠️
 A JavaScript library for React Native based mobile apps that brings offline analytics capabilities on top of data provided by Realm JS SDK. 
+
+![image](https://user-images.githubusercontent.com/27056663/196647313-b439faad-c44b-424c-b613-27c233f861b5.png)
 
 ## Why this project?
 When I was building my first React Native based expense-manager using Atlas Device Sync, I came up with an idea for a new feature where I wanted to perform analytics on the data stored on the user’s device.
